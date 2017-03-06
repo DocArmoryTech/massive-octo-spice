@@ -66,7 +66,7 @@ case "$1" in
     fi
 
     # Prepare environment
-    mkdir -p $LOG_DIR && chown "$USER":"$GROUP" $LOG_DIR
+#    mkdir -p $LOG_DIR && chown "$USER":"$GROUP" $LOG_DIR
     touch $LOG_FILE && chown "$USER":"$GROUP" $LOG_FILE
 
     # Start Daemon

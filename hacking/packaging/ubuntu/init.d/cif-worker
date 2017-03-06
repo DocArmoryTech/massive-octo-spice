@@ -18,13 +18,10 @@ DESC="cif-worker"
 DEBUG=""
 THREADS=8
 INTERVAL=5
-USER=cif
-GROUP=cif
-LOG_DIR=/var/log
+
 DAEMON=/opt/cif/bin/cif-worker
 DEFAULT_CIF=/etc/default/cif
 DEFAULT=/etc/default/$NAME
-CONF_DIR=/etc/cif
 
 if [ `id -u` -ne 0 ]; then
     echo "You need root privileges to run this script"
@@ -57,7 +54,7 @@ fi
 # Check DAEMON exists
 test -x $DAEMON || exit 0
 
-DAEMON_OPTS="$CIF_DEBUGGING --config $CONF_FILE --user $USER --group $GROUP --threads $THREADS --logging --logfile $LOG_FILE -p $PID_FILE -D start"
+DAEMON_OPTS="$CIF_DEBUGGING --config $CONF_FILE --user $CIF_USER --group $CIF_GROUP --threads $THREADS --logging --logfile $LOG_FILE -p $PID_FILE -D start"
 
 case "$1" in
   start)
@@ -71,13 +68,13 @@ case "$1" in
     fi
 
     # Prepare environment
-    mkdir -p $LOG_DIR && chown "$USER":"$GROUP" $LOG_DIR
+    mkdir -p $LOG_DIR && chown "$CIF_USER":"$CIF_GROUP" $LOG_DIR
     touch "$PID_FILE"
-    chown "$USER":"$GROUP" "$PID_FILE"
-    touch $LOG_FILE && chown "$USER":"$GROUP" $LOG_FILE
+    chown "$CIF_USER":"$CIF_GROUP" "$PID_FILE"
+    touch $LOG_FILE && chown "$CIF_USER":"$CIF_GROUP" $LOG_FILE
 
     # Start Daemon
-    start-stop-daemon --start -c "$USER" --exec $DAEMON -- $DAEMON_OPTS > /dev/null 2>&1
+    start-stop-daemon --start -c "$CIF_USER" --exec $DAEMON -- $DAEMON_OPTS > /dev/null 2>&1
     log_end_msg $?
     ;;      
   stop)
@@ -85,7 +82,7 @@ case "$1" in
 
     if [ -f "$PID_FILE" ]; then 
         start-stop-daemon --stop --pidfile "$PID_FILE" \
-            --user "$USER" \
+            --user "$CIF_USER" \
             --retry=TERM/20/KILL/5 >/dev/null
         if [ $? -eq 1 ]; then
             log_progress_msg "$DESC is not running but pid file exists, cleaning up"
